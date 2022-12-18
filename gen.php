@@ -117,7 +117,6 @@ if (isset($_POST['submit'])) {
                     <td colspan="2"><center><input name="submit" type=
                     "submit" value="Submit" id="submit"></center></td>
                 </tr>
-                <!-- Add the checkbox here -->
             </table>
             </form>
 
