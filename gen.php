@@ -37,6 +37,7 @@ if (isset($_POST['submit'])) {
     $y1 = $_POST['y1'];
     $y2 = $_POST['y2'];
     $msg = $_POST['msg'];
+	$unlisted = $_POST['unlisted'];
 	
     // Create a unique identifier for the entry
     $identifier = generate_string($permitted_chars, 6);
@@ -55,13 +56,13 @@ if (isset($_POST['submit'])) {
     $y1 = htmlspecialchars($y1);
     $y2 = htmlspecialchars($y2);
     $msg = htmlspecialchars($msg);
-
+	$unlisted = htmlspecialchars($unlisted);
     // Prepare the SQL statement
-    $sql = "INSERT INTO entry (Identifier, IP, datetime, name, y1, y2, message) VALUES (?, ?, NOW(), ?, ?, ?, ?)";
+    $sql = "INSERT INTO entry (Identifier, IP, datetime, name, y1, y2, message, unlisted) VALUES (?, ?, NOW(), ?, ?, ?, ?, ?)";
     $stmt = mysqli_prepare($conn, $sql);
 
     // Bind the parameters to the statement
-    mysqli_stmt_bind_param($stmt, 'sssiis', $identifier, $ip, $name, $y1, $y2, $msg);
+    mysqli_stmt_bind_param($stmt, 'sssiisi', $identifier, $ip, $name, $y1, $y2, $msg, $unlisted);
 
     // Execute the statement
     mysqli_stmt_execute($stmt);
@@ -93,26 +94,33 @@ if (isset($_POST['submit'])) {
                 </tr>
                 <tr>
                     <td>Year 1:</td>
-                    <td><input name="y1" required="" type="text" maxlength="6" size="30"></td>
+                    <td><input name="y1" required="" type="number" maxlength="6" size="30"></td>
                 </tr>
                 <tr>
                     <td>Year 2:</td>
-                    <td><input name="y2" required="" type="text" maxlength="6" size="30"></td>
+                    <td><input name="y2" required="" type="number" maxlength="6" size="30"></td>
                 </tr>
                 <tr>
                     <td>Message:</td>
                     <td><input name="msg" required="" type="text" size="30"></td>
                 </tr>
+				<tr>
+                    <td colspan="2"><label><input type="checkbox" name="unlisted" value="1"/><span>Unlisted</span></label></td>
+                </tr>
                 <tr>
                 <td colspan="2"> 
-                 <input type="checkbox" name="terms" value="yes"> I agree to the that my IP is logged for abuse purposes.
+				 <p>By clicking submit, you agree to the that your IP (<?php echo $_SERVER['HTTP_X_FORWARDED_FOR'];?>) IP is logged for abuse purposes. If you need a submission removed please contact the site owner. Any and all submissions become the right of site owner. 
+				 <br><br>
+				 Additionally, making a submission "Unlisted" does not prevent others from viewing it, it will simply not be shown by the random rotation on the homepage.</p>
                 </td>
                 <tr>
                     <td colspan="2"><center><input name="submit" type=
                     "submit" value="Submit" id="submit"></center></td>
                 </tr>
+                <!-- Add the checkbox here -->
             </table>
             </form>
+
 
         </div>
 <?php require 'support/footer.php' ?>
