@@ -1,39 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+<?php require 'support/head.php' ?>
+</head>
+<body>
+<?php require 'support/nav.php' ?>
+<div class="container section" style="color:white;">
 <?php
-// Make a MySQL Connection
-($GLOBALS["___mysqli_ston"] = mysqli_connect("localhost",  "admin",  "redacted")) or die(((is_object($GLOBALS["___mysqli_ston"])) ? mysqli_error($GLOBALS["___mysqli_ston"]) : (($___mysqli_res = mysqli_connect_error()) ? $___mysqli_res : false)));
-((bool)mysqli_query($GLOBALS["___mysqli_ston"], "USE " . ripdb)) or die(((is_object($GLOBALS["___mysqli_ston"])) ? mysqli_error($GLOBALS["___mysqli_ston"]) : (($___mysqli_res = mysqli_connect_error()) ? $___mysqli_res : false)));
+require 'support/connect.php';
 
-// Get all the data from the "?rgang" table
-$result = mysqli_query($GLOBALS["___mysqli_ston"], "SELECT * FROM ripgen") 
-or die(((is_object($GLOBALS["___mysqli_ston"])) ? mysqli_error($GLOBALS["___mysqli_ston"]) : (($___mysqli_res = mysqli_connect_error()) ? $___mysqli_res : false)));  
+// Prepare the SQL statement
+$stmt = $conn->prepare("SELECT * FROM entry");
 
-echo "<table border='1'>";
-echo "<tr> <th>ID</th> <th>IP</th> <th>Terms</th> <th>Name</th> <th>Message</th> <th>Year 1</th> <th>Year 2</th> <th>Condolences URL</th> <th>Song URL</th> <th>Background URL</th></tr>";
-// keeps getting the next row until there are no more to get
-while($row = mysqli_fetch_array( $result )) {
-    // Print out the contents of each row into a table
-    echo "<tr><td>"; 
-    echo "<a href='https://rip.lennycrew.com/rip?id=" . $row['id'] . "'>" . $row['id'] . "</a>";
-    echo "</td><td>"; 
-    echo $row['ip'];
-    echo "</td><td>"; 
-    echo $row['terms'];
-    echo "</td><td>"; 
-    echo $row['name'];
-    echo "</td><td>"; 
-    echo $row['msg'];
-    echo "</td><td>"; 
-    echo $row['y1'];
-    echo "</td><td>";
-    echo $row['y2'];
-    echo "</td><td>"; 
-    echo "<a href='" . $row['curl'] . "'>" . $row['curl'] . "</a>";
-    echo "</td><td>"; 
-    echo $row['sid'];
-    echo "</td><td>"; 
-    echo "<a href='" . $row['bgurl'] . "'>" . $row['bgurl'] . "</a>";
-    echo "</td></tr>"; 
-} 
+// Execute the statement
+$stmt->execute();
 
-echo "</table>";
+// Bind the result to a variable
+$result = $stmt->get_result();
+
+// Fetch the result as an associative array
+$query = array();
+while($query[] = $result->fetch_assoc());
+array_pop($query);
+
+// Output a dynamic table of the results with column headings.
+echo '<table border="1">';
+echo '<tr>';
+foreach($query[0] as $key => $value) {
+    echo '<td>';
+    echo htmlspecialchars($key); // Sanitize the column heading
+    echo '</td>';
+}
+echo '</tr>';
+foreach($query as $row) {
+    echo '<tr>';
+    foreach($row as $key => $column) {
+        if ($key == 'Identifier') { // Output the identifier column as a link
+            echo '<td><a href="'.htmlspecialchars($column).'">'.htmlspecialchars($column).'</a></td>'; // Sanitize the identifier
+        } else {
+            echo '<td>';
+            echo htmlspecialchars($column); // Sanitize the other columns
+            echo '</td>';
+        }
+    }
+    echo '</tr>';
+}
+echo '</table>';
+
+// Close the statement
+$stmt->close();
+
 ?>
+</div>
+<?php require 'support/footer.php' ?>
+  </body>
+</html>
